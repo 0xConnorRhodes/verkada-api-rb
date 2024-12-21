@@ -39,7 +39,7 @@ class Vapi
       }})
 
     if response.success?
-      JSON.parse(response.body, symbolize_names: true)[:cameras]
+      JSON.parse(response.body, symbolize_names: true)
     else
       raise "Failed to get camera info: #{response.code} - #{response.body}"
     end
