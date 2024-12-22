@@ -127,6 +127,26 @@ class Vapi
     JSON.parse(response.body, symbolize_names: true)[:event_types]
   end
 
+  def create_helix_event_type(name:, schema:)
+    get_api_token if token_expired?
+
+    headers = {
+      'accept' => 'application/json',
+      'content-type' => 'application/json',
+      'x-verkada-auth' => @token
+    }
+
+    payload = { name: name, event_schema: schema }.to_json
+
+    response = self.class.post("/cameras/v1/video_tagging/event_type", headers: headers, body: payload)
+
+    unless response.success?
+      raise "Failed to create helix event type: #{response.code} - #{response.body}"
+    end
+
+    JSON.parse(response.body, symbolize_names: true)
+  end
+
   private
 
   def token_expired?
