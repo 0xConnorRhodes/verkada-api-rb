@@ -65,6 +65,23 @@ class Vapi
     cameras
   end
 
+  def get_helix_event_types
+    get_api_token if token_expired?
+
+    headers = {
+      'accept' => 'application/json',
+      'x-verkada-auth' => @token
+    }
+
+    response = self.class.get('/cameras/v1/video_tagging/event_type', headers: headers)
+
+    unless response.success?
+      raise "Failed to get list of helix event types: #{response.code} - #{response.body}"
+    end
+
+    JSON.parse(response.body, symbolize_names: true)[:event_types]
+  end
+
   private
 
   def token_expired?
