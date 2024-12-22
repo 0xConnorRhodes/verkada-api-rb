@@ -147,6 +147,35 @@ class Vapi
     JSON.parse(response.body, symbolize_names: true)
   end
 
+  def update_helix_event_type(uid:, name:, schema:)
+  # Updates a Helix event type. All non-UID info overwrites existing info
+  #
+  # @param uid [String] The event type's UID
+  # @param name [String] The event type's name
+  # @param schema [Hash] The event type's schema
+  #
+  # @return [Integer] The HTTP response code (no body)
+
+    get_api_token if token_expired?
+
+    query = { event_type_uid: uid }
+
+    headers = {
+      'content-type' => 'application/json',
+      'x-verkada-auth' => @token
+    }
+
+    payload = { name: name, event_schema: schema }.to_json  
+
+    response = self.class.patch("/cameras/v1/video_tagging/event_type", query: query, headers: headers, body: payload)
+
+    unless response.success?
+      raise "Failed to update helix event type: #{response.code} - #{response.body}"
+    end
+
+    response.code
+  end
+
   private
 
   def token_expired?
