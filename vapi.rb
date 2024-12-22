@@ -66,6 +66,10 @@ class Vapi
   end
 
   def get_doors(door_ids: nil, site_ids: nil)
+    # Retrieve a list of doors. Optionally based on the passed door ids or site ids
+    #
+    # @param door_ids [Array<String>] list of door ids to retrieve
+    # @param site_ids [Array<String>] list of site ids to retrieve
     get_api_token if token_expired?
 
     headers = {
@@ -74,7 +78,6 @@ class Vapi
     }
 
     query = {}
-    # pass door or site ids as array of strings: ['id1'] / ['id1', 'id2']
     query[:door_ids] = door_ids.join(',') if door_ids
     query[:site_ids] = site_ids.join(',') if site_ids
 
