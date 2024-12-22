@@ -99,9 +99,9 @@ class Vapi
       'x-verkada-auth' => @token
     }
 
-    payload = { door_id: door_id }.to_json
+    body = { door_id: door_id }.to_json
 
-    response = self.class.post("/access/v1/door/admin_unlock", headers: headers, body: payload)
+    response = self.class.post("/access/v1/door/admin_unlock", headers: headers, body: body)
 
     unless response.success?
       raise "Failed to unlock door: #{response.code} - #{response.body}"
@@ -136,9 +136,9 @@ class Vapi
       'x-verkada-auth' => @token
     }
 
-    payload = { name: name, event_schema: schema }.to_json
+    body = { name: name, event_schema: schema }.to_json
 
-    response = self.class.post("/cameras/v1/video_tagging/event_type", headers: headers, body: payload)
+    response = self.class.post("/cameras/v1/video_tagging/event_type", headers: headers, body: body)
 
     unless response.success?
       raise "Failed to create helix event type: #{response.code} - #{response.body}"
@@ -165,9 +165,9 @@ class Vapi
       'x-verkada-auth' => @token
     }
 
-    payload = { name: name, event_schema: schema }.to_json  
+    body = { name: name, event_schema: schema }.to_json  
 
-    response = self.class.patch("/cameras/v1/video_tagging/event_type", query: query, headers: headers, body: payload)
+    response = self.class.patch("/cameras/v1/video_tagging/event_type", query: query, headers: headers, body: body)
 
     unless response.success?
       raise "Failed to update helix event type: #{response.code} - #{response.body}"
