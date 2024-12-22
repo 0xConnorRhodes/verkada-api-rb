@@ -90,6 +90,26 @@ class Vapi
     JSON.parse(response.body, symbolize_names: true)[:doors]
   end
 
+  def unlock_door_as_admin(door_id)
+    get_api_token if token_expired?
+
+    headers = {
+      'accept' => 'application/json',
+      'content-type' => 'application/json',
+      'x-verkada-auth' => @token
+    }
+
+    payload = { door_id: door_id }.to_json
+
+    response = self.class.post("/access/v1/door/admin_unlock", headers: headers, body: payload)
+
+    unless response.success?
+      raise "Failed to unlock door: #{response.code} - #{response.body}"
+    end
+
+    JSON.parse(response.body, symbolize_names: true)
+  end
+
   def get_helix_event_types
     get_api_token if token_expired?
 
