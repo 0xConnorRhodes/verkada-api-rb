@@ -32,17 +32,37 @@ class Vapi
   def get_camera_data
     get_api_token if token_expired?
 
-    response = self.class.get('/cameras/v1/devices', {
-      headers: {
-        'Content-Type' => 'application/json',
-        'x-verkada-auth': @token
-      }})
+    cameras = nil
+    next_page_token = nil
 
-    if response.success?
-      JSON.parse(response.body, symbolize_names: true)
-    else
-      raise "Failed to get camera info: #{response.code} - #{response.body}"
+    loop do
+      uri = '/cameras/v1/devices'
+      query = { page_size: 100 }
+      query[:page_token] = next_page_token if next_page_token
+
+      headers = {
+        'Content-Type' => 'application/json',
+        'x-verkada-auth' => @token
+      }
+
+      response = self.class.get(uri, headers: headers, query: query)
+
+      unless response.success?
+        raise "Failed to get camera info: #{response.code} - #{response.body}"
+      end
+
+      page_data = JSON.parse(response.body, symbolize_names: true)
+
+      if cameras.nil?
+        cameras = page_data[:cameras]
+      else
+        cameras.concat(page_data[:cameras])
+      end
+
+      next_page_token = page_data[:next_page_token]
+      break if next_page_token.nil?
     end
+    cameras
   end
 
   private
