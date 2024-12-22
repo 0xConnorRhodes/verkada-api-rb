@@ -65,6 +65,28 @@ class Vapi
     cameras
   end
 
+  def get_doors(door_ids: nil, site_ids: nil)
+    get_api_token if token_expired?
+
+    headers = {
+      'accept' => 'application/json',
+      'x-verkada-auth' => @token
+    }
+
+    query = {}
+    # pass door or site ids as array of strings: ['id1'] / ['id1', 'id2']
+    query[:door_ids] = door_ids.join(',') if door_ids
+    query[:site_ids] = site_ids.join(',') if site_ids
+
+    response = self.class.get('/access/v1/doors', headers: headers, query: query)
+
+    unless response.success?
+      raise "Failed to get list of doors: #{response.code} - #{response.body}"
+    end
+
+    JSON.parse(response.body, symbolize_names: true)[:doors]
+  end
+
   def get_helix_event_types
     get_api_token if token_expired?
 
