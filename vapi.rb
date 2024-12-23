@@ -154,7 +154,7 @@ class Vapi
   # @param name [String] The event type's name
   # @param schema [Hash] The event type's schema
   #
-  # @return [Integer] The HTTP response code (no body)
+  # @return [Integer] The HTTP response code
 
     get_api_token if token_expired?
 
@@ -171,6 +171,43 @@ class Vapi
 
     unless response.success?
       raise "Failed to update helix event type: #{response.code} - #{response.body}"
+    end
+
+    response.code
+  end
+
+  def create_helix_event(event_type_uid:, camera_id:, flagged: false, attributes:, time: nil)
+  # Creates a new Helix event.
+  #
+  # @param event_type_uid [String] The UID of the event type to create the event for
+  # @param camera_id [String] The ID of the camera to create the event for
+  # @param flagged [Boolean] Whether the event should be flagged. Defaults to false.
+  # @param attributes [Hash] The attributes of the event
+  # @param time [Integer] The time of the event in milliseconds. Defaults to the current time.
+  #
+  # @return [Integer] The HTTP response code
+
+    get_api_token if token_expired?
+
+    time = time.nil? ? (Time.now.to_f * 1000).round : time
+
+    headers = {
+      'content-type' => 'application/json',
+      'x-verkada-auth' => @token
+    }
+
+    body = { 
+      event_type_uid: event_type_uid, 
+      camera_id: camera_id, 
+      flagged: flagged, 
+      attributes: attributes, 
+      time_ms: time
+    }.to_json
+
+    response = self.class.post("/cameras/v1/video_tagging/event", headers: headers, body: body)
+
+    unless response.success?
+      raise "Failed to create helix event: #{response.code} - #{response.body}"
     end
 
     response.code
