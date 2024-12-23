@@ -44,6 +44,7 @@ class Vapi
       next_page_token = page_data[:next_page_token]
       break if next_page_token.nil?
     end
+
     cameras
   end
 
@@ -92,7 +93,7 @@ class Vapi
     JSON.parse(response.body, symbolize_names: true)
   end
 
-  def get_helix_event_types
+  def get_helix_event_types(symbolize_names: true)
     get_api_token if token_expired?
 
     headers = {
@@ -106,7 +107,11 @@ class Vapi
       raise "Failed to get list of helix event types: #{response.code} - #{response.body}"
     end
 
-    JSON.parse(response.body, symbolize_names: true)[:event_types]
+    if symbolize_names
+      JSON.parse(response.body, symbolize_names: true)[:event_types]
+    else
+      JSON.parse(response.body, symbolize_names: false)["event_types"]
+    end
   end
 
   def create_helix_event_type(name:, schema:)
