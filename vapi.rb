@@ -11,6 +11,18 @@ class Vapi
     @token_expiry = nil
   end
 
+  def get_org_id
+  # Get org id from audit log entry. 
+  # 
+  # If no recent entries in the first request, loop until the entry
+  # from the first request is returned in a subsequent request
+    audit_log_entries = []
+    while audit_log_entries.empty?
+      audit_log_entries = get_audit_logs(start_time: (Time.now - 30).to_i, end_time: Time.now.to_i)
+    end
+    audit_log_entries.first[:organization_id]
+  end
+
   def get_camera_data(data_key: :cameras, page_size: 100)
     get_api_token if token_expired?
 
@@ -175,11 +187,15 @@ class Vapi
     response.code
   end
 
-  def get_audit_logs(data_key: :audit_logs, page_size: 100)
+  def get_audit_logs(start_time:, end_time:, data_key: :audit_logs, page_size: 100)
     get_api_token if token_expired?
 
     uri = '/core/v1/audit_log'
+
     query = { page_size: page_size }
+    query[:start_time] = start_time if start_time
+    query[:end_time] = end_time if end_time
+
     headers = {
       'accept' => 'application/json',
       'x-verkada-auth' => @token
