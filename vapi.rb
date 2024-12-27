@@ -11,41 +11,16 @@ class Vapi
     @token_expiry = nil
   end
 
-  def get_camera_data
+  def get_camera_data(data_key: :cameras, page_size: 100)
     get_api_token if token_expired?
 
-    cameras = nil
-    next_page_token = nil
-
-    loop do
-      uri = '/cameras/v1/devices'
-      query = { page_size: 100 }
-      query[:page_token] = next_page_token if next_page_token
-
-      headers = {
-        'Content-Type' => 'application/json',
-        'x-verkada-auth' => @token
-      }
-
-      response = self.class.get(uri, query: query, headers: headers)
-
-      unless response.success?
-        raise "Failed to get camera info: #{response.code} - #{response.body}"
-      end
-
-      page_data = JSON.parse(response.body, symbolize_names: true)
-
-      if cameras.nil?
-        cameras = page_data[:cameras]
-      else
-        cameras.concat(page_data[:cameras])
-      end
-
-      next_page_token = page_data[:next_page_token]
-      break if next_page_token.nil?
-    end
-
-    cameras
+    uri = '/cameras/v1/devices'
+    query = { page_size: page_size }
+    headers = {
+      'Content-Type' => 'application/json',
+      'x-verkada-auth' => @token
+    }
+    return get_pages(uri, query, headers, data_key: data_key)
   end
 
   def get_doors(door_ids: nil, site_ids: nil)
@@ -200,44 +175,16 @@ class Vapi
     response.code
   end
 
-  def get_audit_logs(page_size: 100)
+  def get_audit_logs(data_key: :audit_logs, page_size: 100)
     get_api_token if token_expired?
 
-    audit_entries = nil
-    next_page_token = nil
-
-    loop do
-      uri = '/core/v1/audit_log'
-      query = { page_size: page_size }
-      query[:page_token] = next_page_token if next_page_token
-
-      puts next_page_token if next_page_token
-
-      headers = {
-        'accept' => 'application/json',
-        'x-verkada-auth' => @token
-      }
-
-
-      response = self.class.get(uri, query: query, headers: headers)
-
-      unless response.success?
-        raise "Failed to get audit logs: #{response.code} - #{response.body}"
-      end
-
-      page_data = JSON.parse(response.body, symbolize_names: true)
-
-      if audit_entries.nil?
-        audit_entries = page_data[:audit_logs]
-      else
-        audit_entries.concat(page_data[:audit_logs])
-      end
-
-      next_page_token = page_data[:next_page_token]
-      break if next_page_token.nil?
-    end
-
-    audit_entries
+    uri = '/core/v1/audit_log'
+    query = { page_size: page_size }
+    headers = {
+      'accept' => 'application/json',
+      'x-verkada-auth' => @token
+    }
+    return get_pages(uri, query, headers)
   end
 
   private
@@ -263,5 +210,32 @@ class Vapi
   def token_expired?
     return true if @token.nil? || @token_expiry.nil?
     Time.now >= @token_expiry
+  end
+
+  def get_pages(uri, query, headers, data_key: :audit_logs)
+    entries = nil
+    next_page_token = nil
+
+    loop do
+      query[:page_token] = next_page_token if next_page_token
+
+      response = self.class.get(uri, query: query, headers: headers)
+
+      unless response.success?
+        raise "Failed to get data: #{response.code} - #{response.body}"
+      end
+
+      page_data = JSON.parse(response.body, symbolize_names: true)
+
+      if entries.nil?
+        entries = page_data[data_key]
+      else
+        entries.concat(page_data[data_key])
+      end
+
+      next_page_token = page_data[:next_page_token]
+      break if next_page_token.nil?
+    end
+    entries
   end
 end
