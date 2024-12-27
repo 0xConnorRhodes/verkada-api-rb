@@ -27,7 +27,7 @@ class Vapi
         'x-verkada-auth' => @token
       }
 
-      response = self.class.get(uri, headers: headers, query: query)
+      response = self.class.get(uri, query: query, headers: headers)
 
       unless response.success?
         raise "Failed to get camera info: #{response.code} - #{response.body}"
@@ -198,6 +198,46 @@ class Vapi
     end
 
     response.code
+  end
+
+  def get_audit_logs(page_size: 100)
+    get_api_token if token_expired?
+
+    audit_entries = nil
+    next_page_token = nil
+
+    loop do
+      uri = '/core/v1/audit_log'
+      query = { page_size: page_size }
+      query[:page_token] = next_page_token if next_page_token
+
+      puts next_page_token if next_page_token
+
+      headers = {
+        'accept' => 'application/json',
+        'x-verkada-auth' => @token
+      }
+
+
+      response = self.class.get(uri, query: query, headers: headers)
+
+      unless response.success?
+        raise "Failed to get audit logs: #{response.code} - #{response.body}"
+      end
+
+      page_data = JSON.parse(response.body, symbolize_names: true)
+
+      if audit_entries.nil?
+        audit_entries = page_data[:audit_logs]
+      else
+        audit_entries.concat(page_data[:audit_logs])
+      end
+
+      next_page_token = page_data[:next_page_token]
+      break if next_page_token.nil?
+    end
+
+    audit_entries
   end
 
   private
