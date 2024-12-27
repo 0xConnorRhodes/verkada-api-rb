@@ -16,11 +16,24 @@ class Vapi
   # 
   # If no recent entries in the first request, loop until the entry
   # from the first request is returned in a subsequent request
+    get_api_token if token_expired?
+
+    uri = '/core/v1/audit_log'
+    query = { page_size: 1 }
+    headers = {
+      'accept' => 'application/json',
+      'x-verkada-auth' => @token
+    }
+
     audit_log_entries = []
+    count = 0
     while audit_log_entries.empty?
-      audit_log_entries = get_audit_logs(start_time: (Time.now - 30).to_i, end_time: Time.now.to_i)
+      audit_log_entries  = self.class.get(uri, query: query, headers: headers)["audit_logs"]
+      count += 1
+      break if count > 10
     end
-    audit_log_entries.first[:organization_id]
+
+    audit_log_entries.first["organization_id"]
   end
 
   def get_camera_data(data_key: :cameras, page_size: 100)
