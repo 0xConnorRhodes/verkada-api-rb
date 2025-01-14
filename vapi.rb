@@ -216,6 +216,24 @@ class Vapi
     return get_pages(uri, query, headers)
   end
 
+  def get_access_users
+    get_api_token if token_expired?
+
+    uri = '/access/v1/access_users'
+    headers = {
+      'accept' => 'application/json',
+      'x-verkada-auth' => @token
+    }
+
+    response = self.class.get(uri, headers: headers)
+
+    unless response.success?
+      raise "Failed to get list of access users: #{response.code} - #{response.body}"
+    end
+
+    JSON.parse(response.body, symbolize_names: true)[:access_members]
+  end
+
   private
 
   def get_api_token
