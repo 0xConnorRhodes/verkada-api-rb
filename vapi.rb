@@ -163,6 +163,22 @@ class Vapi
     response.code
   end
 
+  def delete_helix_event_type(uid)
+    get_api_token if token_expired?
+
+    query = { event_type_uid: uid }
+    headers = {
+      'x-verkada-auth' => @token
+    }
+    response = self.class.delete("/cameras/v1/video_tagging/event_type", query: query, headers: headers)
+
+    unless response.success?
+      raise "Failed to delete helix event type: #{response.code} - #{response.body}"
+    end
+
+    response.code
+  end
+
   def create_helix_event(event_type_uid:, camera_id:, flagged: false, attributes:, time: nil)
   # Creates a new Helix event.
   #
