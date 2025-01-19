@@ -36,7 +36,7 @@ class Vapi
     audit_log_entries.first["organization_id"]
   end
 
-  def get_camera_data(data_key: :cameras, page_size: 100)
+  def get_camera_data(data_key: :cameras, page_size: 100, page_count: 'all')
     get_api_token if token_expired?
 
     uri = '/cameras/v1/devices'
@@ -45,7 +45,7 @@ class Vapi
       'Content-Type' => 'application/json',
       'x-verkada-auth' => @token
     }
-    return get_pages(uri, query, headers, data_key: data_key)
+    return get_pages(uri, query, headers, data_key: data_key, page_count: page_count)
   end
 
   def get_doors(door_ids: nil, site_ids: nil)
@@ -216,7 +216,7 @@ class Vapi
     response.code
   end
 
-  def get_audit_logs(start_time:, end_time:, data_key: :audit_logs, page_size: 100)
+  def get_audit_logs(start_time:, end_time: nil, data_key: :audit_logs, page_size: 100, page_count: 'all')
     get_api_token if token_expired?
 
     uri = '/core/v1/audit_log'
@@ -229,7 +229,7 @@ class Vapi
       'accept' => 'application/json',
       'x-verkada-auth' => @token
     }
-    return get_pages(uri, query, headers)
+    return get_pages(uri, query, headers, page_count: page_count)
   end
 
   def get_access_users
@@ -275,29 +275,55 @@ class Vapi
     Time.now >= @token_expiry
   end
 
-  def get_pages(uri, query, headers, data_key: :audit_logs)
+  def get_pages(uri, query, headers, data_key: :audit_logs, page_count: 'all')
     entries = nil
     next_page_token = nil
 
-    loop do
-      query[:page_token] = next_page_token if next_page_token
+    if page_count == 'all'
+      loop do
+        query[:page_token] = next_page_token if next_page_token
 
-      response = self.class.get(uri, query: query, headers: headers)
+        response = self.class.get(uri, query: query, headers: headers)
 
-      unless response.success?
-        raise "Failed to get data: #{response.code} - #{response.body}"
+        unless response.success?
+          raise "Failed to get data: #{response.code} - #{response.body}"
+        end
+
+        page_data = JSON.parse(response.body, symbolize_names: true)
+
+        if entries.nil?
+          entries = page_data[data_key]
+        else
+          entries.concat(page_data[data_key])
+        end
+
+        next_page_token = page_data[:next_page_token]
+        break if next_page_token.nil?
       end
+    else
+      loop do
+        query[:page_token] = next_page_token if next_page_token
 
-      page_data = JSON.parse(response.body, symbolize_names: true)
+        response = self.class.get(uri, query: query, headers: headers)
 
-      if entries.nil?
-        entries = page_data[data_key]
-      else
-        entries.concat(page_data[data_key])
+        unless response.success?
+          raise "Failed to get data: #{response.code} - #{response.body}"
+        end
+
+        page_data = JSON.parse(response.body, symbolize_names: true)
+
+        if entries.nil?
+          entries = page_data[data_key]
+        else
+          entries.concat(page_data[data_key])
+        end
+
+        next_page_token = page_data[:next_page_token]
+        break if next_page_token.nil?
+
+        page_count -= 1
+        break if page_count == 0
       end
-
-      next_page_token = page_data[:next_page_token]
-      break if next_page_token.nil?
     end
     entries
   end
