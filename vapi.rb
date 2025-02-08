@@ -194,6 +194,8 @@ class Vapi
 
     time = time.nil? ? (Time.now.to_f * 1000).round : time
 
+    time = time * 1000 if time.to_s.match?(/^\d{10}$/)
+
     headers = {
       'content-type' => 'application/json',
       'x-verkada-auth' => @token
@@ -206,6 +208,14 @@ class Vapi
       attributes: attributes, 
       time_ms: time
     }.to_json
+
+    puts "Request headers:"
+    puts headers
+    puts "-------"
+
+    puts "Request body:"
+    puts body
+
 
     response = self.class.post("/cameras/v1/video_tagging/event", headers: headers, body: body)
 
