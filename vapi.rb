@@ -209,14 +209,6 @@ class Vapi
       time_ms: time
     }.to_json
 
-    puts "Request headers:"
-    puts headers
-    puts "-------"
-
-    puts "Request body:"
-    puts body
-
-
     response = self.class.post("/cameras/v1/video_tagging/event", headers: headers, body: body)
 
     unless response.success?
