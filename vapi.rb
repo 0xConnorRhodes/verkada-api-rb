@@ -252,11 +252,50 @@ class Vapi
     JSON.parse(response.body, symbolize_names: true)[:access_members]
   end
 
-  def get_guest_visits
+  def get_guest_sites
+  # TODO: get_guest_sites
+    nil
+  end
+
+  def get_guest_visits(site_id:, start_time: (Time.now - 86400).to_i, end_time: Time.now.to_i)
+  # return array of guest visits in the specified time period
+  # if no time period is specified, defaults to the most recent 24 hours
+
     get_api_token if token_expired?
 
     uri = '/guest/v1/visits'
-    nil
+
+    headers = {
+      'accept' => 'application/json',
+      'x-verkada-auth' => @token
+    }
+
+    query = {
+      site_id: site_id,
+      start_time: start_time,
+      end_time: end_time
+    }
+    
+    if (end_time - start_time) > 86400
+      entries = []
+      current_start = start_time
+      
+      while current_start < end_time
+        current_end = [current_start + 86400, end_time].min
+        query[:start_time] = current_start
+        query[:end_time] = current_end
+        
+        chunk_entries = get_pages(uri, query, headers, data_key: :visits, page_count: 'all')
+        entries.concat(chunk_entries)
+        
+        current_start = current_end
+      end
+      
+      return entries
+    else
+      return get_pages(uri, query, headers, data_key: :visits, page_count: 'all')
+    end
+
   end
 
   private
