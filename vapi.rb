@@ -3,12 +3,12 @@ require 'json'
 
 class Vapi
   include HTTParty
-  base_uri 'https://api.verkada.com'
 
-  def initialize(api_key)
+  def initialize(api_key, region: 'api')
     @api_key = api_key
     @token = nil
     @token_expiry = nil
+    self.class.base_uri "https://#{region}.verkada.com"
   end
 
   def get_org_id
@@ -250,6 +250,13 @@ class Vapi
     end
 
     JSON.parse(response.body, symbolize_names: true)[:access_members]
+  end
+
+  def get_guest_visits
+    get_api_token if token_expired?
+
+    uri = '/guest/v1/visits'
+    nil
   end
 
   private
