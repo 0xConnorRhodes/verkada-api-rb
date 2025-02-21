@@ -324,6 +324,12 @@ class Vapi
   end
 
   def get_pages(uri, query, headers, data_key: :audit_logs, page_count: 'all')
+  # loop through get requests providing next_page_token if present
+  # append each array of responses to a combined array which is returned at the end
+  # 
+  # data_key: specifies the name of the key in the returned object which contains the
+  # array of responses (eg :cameras in get_camera_data, :visits in get_guest_visits etc.)
+  
     entries = nil
     next_page_token = nil
 
