@@ -1,5 +1,6 @@
 require 'httparty'
 require 'json'
+require 'pry'
 
 class Vapi
   include HTTParty
@@ -216,6 +217,36 @@ class Vapi
     end
 
     response.code
+  end
+
+  def get_ot_data(camera_id:, symbolize_names: true)
+    get_api_token if token_expired?
+
+    uri = "/cameras/v1/analytics/occupancy_trends"
+    headers = {
+      "accept" => "application/json",
+      "x-verkada-auth" => @token
+    }
+
+    query = {
+      camera_id: camera_id,
+      interval: '1_hour',
+      type: 'person',
+    }
+
+    response = self.class.get(uri, headers: headers, query: query)
+
+    puts response
+
+    unless response.success?
+      raise "Failed to get occupancy trends data: #{response.code} - #{response.body}"
+    end
+
+    if symbolize_names
+      JSON.parse(response.body, symbolize_names: true)
+    else
+      JSON.parse(response.body, symbolize_names: false)
+    end
   end
 
   def get_audit_logs(start_time:, end_time: nil, data_key: :audit_logs, page_size: 100, page_count: 'all')
