@@ -219,7 +219,7 @@ class Vapi
     response.code
   end
 
-  def get_ot_data(camera_id:, symbolize_names: true)
+  def get_ot_data(camera_id:, interval: '1_hour', type: 'person', symbolize_names: true)
     get_api_token if token_expired?
 
     uri = "/cameras/v1/analytics/occupancy_trends"
@@ -230,13 +230,11 @@ class Vapi
 
     query = {
       camera_id: camera_id,
-      interval: '1_hour',
-      type: 'person',
+      interval: interval,
+      type: type,
     }
 
     response = self.class.get(uri, headers: headers, query: query)
-
-    puts response
 
     unless response.success?
       raise "Failed to get occupancy trends data: #{response.code} - #{response.body}"
