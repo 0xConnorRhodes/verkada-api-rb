@@ -1,14 +1,12 @@
-{ stdenv, bundlerEnv, ruby }:
+{ pkgs, stdenv, bundlerEnv, ruby }:
 let
   gems = bundlerEnv {
-    name = "httparty";
-    inherit ruby_3_4;
+    inherit ruby;
     gemdir  = ./.;
   };
 in stdenv.mkDerivation {
-  name = "httparty";
   src = ./.;
-  buildInputs = [gems ruby_3_4];
+  buildInputs = [gems ruby];
   installPhase = ''
     mkdir -p $out
     cp -r $src $out
