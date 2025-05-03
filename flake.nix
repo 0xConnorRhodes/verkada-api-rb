@@ -16,6 +16,8 @@
       let
         pkgs = import nixpkgs { inherit system; };
 
+        secrets = import ./tests/secrets.nix;
+
         ruby = pkgs.ruby_3_4;
 
 	# package containing all gems defined in .nix/Gemfile
@@ -44,6 +46,7 @@
           # ENV
           VAR1 = "123";
           VAR2 = "456";
+          HELLO = secrets.hello;
         };
       };
   in
