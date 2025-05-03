@@ -31,6 +31,7 @@
         # default devShell
         default = pkgs.mkShell {
           buildInputs = with pkgs; [ 
+	    bashInteractive # needed for vscode
             ruby
             rubyEnv
           ];
