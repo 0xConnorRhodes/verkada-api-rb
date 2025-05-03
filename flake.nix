@@ -16,7 +16,7 @@
       let
         pkgs = import nixpkgs { inherit system; };
 
-        secrets = import ./tests/secrets.nix;
+        secrets = builtins.fromJSON (builtins.readFile ./tests/secrets.json);
 
         ruby = pkgs.ruby_3_4;
 
@@ -31,7 +31,7 @@
         # default devShell
         default = pkgs.mkShell {
           buildInputs = with pkgs; [ 
-	    bashInteractive # needed for vscode
+	          bashInteractive # needed for vscode
             ruby
             rubyEnv
           ];
@@ -45,9 +45,7 @@
           '';
 
           # ENV
-          VAR1 = "123";
-          VAR2 = "456";
-          HELLO = secrets.hello;
+          code_dir = ./.;
         };
       };
   in
