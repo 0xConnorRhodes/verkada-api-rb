@@ -18,6 +18,7 @@
 
         ruby = pkgs.ruby_3_4;
 
+	# package containing all gems defined in .nix/Gemfile
         rubyEnv = pkgs.bundlerEnv {
           name = "rubyEnv";
           ruby = ruby;
