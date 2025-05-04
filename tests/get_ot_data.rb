@@ -1,11 +1,18 @@
 require "#{ENV['code_dir']}/vapi"
 require 'json'
+require 'pry'
 
 secrets_file = File.read(File.join(ENV['code_dir'], 'tests', 'secrets.json'))
 secrets = JSON.parse(secrets_file, symbolize_names: true)
 
-puts secrets
+api_key = secrets[:apiKeys][:atx_demo_room]
 
-puts RUBY_VERSION
+api = Vapi.new(api_key)
 
-puts `pwd`
+cam_id = secrets[:devices][:demo_room_ot]
+
+ot_data = api.get_ot_data(camera_id: cam_id)
+
+pp ot_data
+
+# binding.pry
