@@ -1,4 +1,4 @@
-require "#{ENV['code_dir']}/vapi"
+require "#{ENV['code_dir']}/lib/vapi"
 require 'json'
 require 'pry'
 
