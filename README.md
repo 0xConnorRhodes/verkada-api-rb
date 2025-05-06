@@ -1,5 +1,5 @@
 # verkada-api-rb
-Verkada API wrapper in ruby
+Verkada API module in Ruby. Dedicated methods for each of the endpoints below are included, along with usage examples.
 
 Module is located in `lib/vapi.rb`.
 
@@ -240,3 +240,6 @@ def get_pages(uri, query, headers, data_key: :audit_logs, page_count: 'all')
   entries
 end
 ```
+
+# Disclaimer
+This is a community project and is not officially affiliated with, endorsed by, or supported by Verkada Inc. While care has been taken to ensure proper functionality and error handling, this software is provided "as is" without warranty of any kind, express or implied. The creators and contributors of this project make no guarantees about its operation or reliability. Users of this middleware assume all responsibility and risk associated with its use. Any outcome resulting from the use of this software is solely the responsibility of the user.
