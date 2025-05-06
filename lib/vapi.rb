@@ -281,11 +281,6 @@ class Vapi
     JSON.parse(response.body, symbolize_names: true)[:access_members]
   end
 
-  def get_guest_sites
-  # TODO: get_guest_sites
-    nil
-  end
-
   def get_guest_visits(site_id:, start_time: (Time.now - 86400).to_i, end_time: Time.now.to_i)
   # return array of guest visits in the specified time period
   # if no time period is specified, defaults to the most recent 24 hours
