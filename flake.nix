@@ -40,10 +40,6 @@
             rubyPackages_3_4.pry
           ];
 
-          shellHook = ''
-            echo "This shell is for: ${system}"
-          '';
-
           # ENV
           code_dir = ./.;
         };
