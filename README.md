@@ -141,10 +141,10 @@ visits = vapi.get_guest_visits(
     end_time: Time.now.to_i) # Current time in seconds
 ```
 
-# Private Functions
+## Private Functions
 The module includes private functions which are reused throughout multiple public methods. These functions can found beneath the `private` keyword in `lib/vapi.rb` and may be adapted for use in other scripts.
 
-## get_api_token
+### get_api_token
 Get ephemeral access token from the supplied API key
 
 ```ruby
@@ -167,7 +167,7 @@ def get_api_token
 end
 ```
 
-## token_expired?
+### token_expired?
 Check if the currently active token is expired. If the existing token is still active, it will be used for future calls. If it is close to expiration, a new token will be generated.
 
 ```ruby
@@ -177,7 +177,7 @@ def token_expired?
 end
 ```
 
-## get_pages
+### get_pages
 This function handles pagination across multiple Verkada endpoints. This enables pagination on all supported endpoints, and allows for chunking multiple requests together for endpoints with limited time-range support. (Such as `get_guest_visits`)
 
 ```ruby
