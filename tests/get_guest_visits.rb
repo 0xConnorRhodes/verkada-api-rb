@@ -5,14 +5,14 @@ require 'pry'
 secrets_file = File.read(File.join(ENV['code_dir'], 'tests', 'secrets.json'))
 secrets = JSON.parse(secrets_file, symbolize_names: true)
 
-api_key = secrets[:apiKeys][:atx_demo_room]
+api_key = secrets[:apiKeys][:guest_k12]
 
 api = Vapi.new(api_key)
 
 guest_visits = api.get_guest_visits(
-  site_id: ARGV[0], # pass site ID as cli arg
+  site_id: secrets[:orgInfo][:guest_k12_site],
   end_time: Time.now.to_i,
-  start_time: Time.now.to_i - 86400 * 100
+  start_time: Time.now.to_i - (86400 * 30) # pull the last 30 days of Guest logs
 )
 
 pp guest_visits
