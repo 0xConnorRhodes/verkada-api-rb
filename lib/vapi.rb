@@ -13,10 +13,10 @@ class Vapi
   end
 
   def get_org_id
-  # Get org id from audit log entry. 
-  # 
-  # If no recent entries in the first request, loop until the entry
-  # from the first request is returned in a subsequent request
+    # Get org id from audit log entry. 
+    # 
+    # If no recent entries in the first request, loop until the entry
+    # from the first request is returned in a subsequent request
     get_api_token if token_expired?
 
     uri = '/core/v1/audit_log'
